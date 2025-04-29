@@ -9,6 +9,20 @@ import numpy as np
 from io import BytesIO
 from datetime import datetime
 from fpdf import FPDF
+import os
+import gdown
+import requests
+import tempfile
+from tensorflow.keras.models import load_model
+
+# Google Drive ID from your file link
+FILE_ID = '1oyb1r2OXFXSbxX2YPhiZ534OMbogpcCI'  # Example: 1aBcD_EfGhIjKlMnOpQrStUvWxYz
+OUTPUT_PATH = 'model/kidney_model.h5'
+
+if not os.path.exists(OUTPUT_PATH):
+    url = f'https://drive.google.com/uc?id={FILE_ID}'
+    gdown.download(url, OUTPUT_PATH, quiet=False)
+
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
@@ -23,7 +37,15 @@ login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
 # Load trained model and labels
-model = load_model('model/kidney_model.h5')
+url = "https://drive.google.com/uc?export=download&id=1oyb1r2OXFXSbxX2YPhiZ534OMbogpcCI"
+
+response = requests.get(url)
+with tempfile.NamedTemporaryFile(delete=False) as tmp:
+    tmp.write(response.content)
+    model_path = tmp.name
+
+model = load_model(model_path)
+
 labels = ['Cyst', 'Normal', 'Stone', 'Tumor']
 
 # User model
