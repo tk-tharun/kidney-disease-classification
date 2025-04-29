@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Prediction History</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(to right, #ffecd2, #fcb69f);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #333;
+    }
+
+    .container {
+      margin-top: 50px;
+      margin-bottom: 50px;
+    }
+
+    .card {
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      transition: transform 0.2s ease-in-out;
+      background: #fff;
+    }
+
+    .card:hover {
+      transform: scale(1.02);
+    }
+
+    .btn-back {
+      margin-top: 40px;
+    }
+
+    .thumbnail {
+      max-width: 100px;
+      border-radius: 10px;
+      transition: transform 0.3s ease;
+      border: 2px solid #dee2e6;
+    }
+
+    .thumbnail:hover {
+      transform: scale(1.05);
+    }
+
+    .date-time {
+      font-size: 0.9rem;
+      color: #777;
+    }
+
+    .icon {
+      font-size: 1.2rem;
+      margin-right: 6px;
+    }
+
+    .btn-outline-danger {
+      font-size: 0.9rem;
+    }
+
+    .card-title {
+      font-weight: 600;
+    }
+
+    .empty-history {
+      background-color: rgba(255, 255, 255, 0.7);
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2 class="text-center text-primary mb-5">📜 Your Prediction History</h2>
+
+    {% if records %}
+      <div class="row row-cols-1 row-cols-md-2 g-4">
+        {% for record in records %}
+          <div class="col">
+            <div class="card p-3 h-100">
+              <div class="d-flex gap-3 align-items-center">
+                <img src="{{ url_for('static', filename=record.image_path) }}" class="thumbnail" alt="Scan Image">
+                <div>
+                  <h5 class="card-title">
+                    {% if record.prediction == 'Normal' %}
+                      ✅ {{ record.prediction }}
+                    {% elif record.prediction == 'Cyst' %}
+                      🧪 {{ record.prediction }}
+                    {% elif record.prediction == 'Stone' %}
+                      🪨 {{ record.prediction }}
+                    {% elif record.prediction == 'Tumor' %}
+                      ⚠️ {{ record.prediction }}
+                    {% else %}
+                      ❓ {{ record.prediction }}
+                    {% endif %}
+                  </h5>
+                  <p class="mb-1">Confidence: <strong>{{ record.confidence }}%</strong></p>
+                  <p class="date-time">Date: {{ record.date.strftime('%Y-%m-%d %H:%M') }}</p>
+
+                  <a href="{{ url_for('download_report', record_id=record.id) }}" class="btn btn-sm btn-outline-danger mt-2">⬇️ Download PDF</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="text-center empty-history mt-5">
+        <p class="fs-5">😔 No prediction history found. Try uploading a kidney scan first!</p>
+        <a href="/" class="btn btn-outline-primary mt-3">🏠 Go to Home</a>
+      </div>
+    {% endif %}
+
+    <div class="text-center btn-back">
+      <a href="/" class="btn btn-outline-secondary">← Back to Home</a>
+    </div>
+  </div>
+</body>
+</html>

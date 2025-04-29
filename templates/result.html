@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Prediction Result</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(to right, #74ebd5, #ACB6E5);
+      color: white;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .result-container {
+      background-color: white;
+      color: #333;
+      padding: 40px;
+      margin-top: 50px;
+      border-radius: 20px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    }
+
+    .title-icon {
+      width: 100px;
+      margin-bottom: 15px;
+      animation: floatIcon 2.5s ease-in-out infinite, pulse 2s infinite alternate;
+    }
+
+    @keyframes floatIcon {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+      100% { transform: translateY(0); }
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.08); }
+    }
+
+    .progress {
+      height: 20px;
+    }
+
+    .badge {
+      font-size: 1rem;
+    }
+
+    #loader {
+      position: fixed;
+      z-index: 9999;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .disease-explanation {
+      font-size: 1.1rem;
+      background-color: #e8f0fe;
+      color: #333;
+      padding: 15px;
+      border-left: 5px solid #0d6efd;
+      border-radius: 10px;
+      margin-top: 30px;
+    }
+
+    .btn {
+      min-width: 180px;
+    }
+
+    .img-thumbnail {
+      border-radius: 12px;
+      border: 2px solid #ddd;
+    }
+
+    h1, h3, h4 {
+      font-weight: 600;
+    }
+
+    .list-group-item {
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body class="text-center">
+
+  <div id="loader">
+    <div class="spinner-border text-success" role="status" style="width: 4rem; height: 4rem;">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="result-container mx-auto col-md-8">
+
+      <img src="{{ url_for('static', filename='uploads/kidney-icon.png') }}" class="title-icon" alt="Kidney Icon">
+
+      <h1 class="mb-3 text-success">Prediction Result</h1>
+
+      <img src="{{ image_path }}" class="img-thumbnail mb-4" style="max-width: 300px;" alt="Uploaded Image">
+
+      <h3 class="mb-2">Predicted: 
+        {% if prediction == 'Normal' %}
+          <span class="text-success">✅ {{ prediction }}</span>
+        {% elif prediction == 'Cyst' %}
+          <span class="text-warning">🧪 {{ prediction }}</span>
+        {% elif prediction == 'Stone' %}
+          <span class="text-secondary">🪨 {{ prediction }}</span>
+        {% elif prediction == 'Tumor' %}
+          <span class="text-danger">⚠️ {{ prediction }}</span>
+        {% else %}
+          <span class="text-dark">❓ {{ prediction }}</span>
+        {% endif %}
+      </h3>
+      
+      <p>Confidence: <strong>{{ confidence }}%</strong></p>
+
+      <div class="progress w-75 mx-auto mb-3">
+        <div class="progress-bar progress-bar-striped bg-success" role="progressbar"
+             style="width: {{ confidence }}%;" aria-valuenow="{{ confidence }}" aria-valuemin="0" aria-valuemax="100">
+          {{ confidence }}%
+        </div>
+      </div>
+
+      <h4 class="mb-3">Class Probabilities:</h4>
+      <ul class="list-group w-75 mx-auto mb-4">
+        {% for label, score in class_confidences.items() %}
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            {{ label }}
+            <span class="badge bg-info text-dark rounded-pill">{{ score }}%</span>
+          </li>
+        {% endfor %}
+      </ul>
+
+      <div class="disease-explanation" id="diseaseText">
+        {% if prediction == 'Normal' %}
+          ✅ The scan appears normal. No signs of kidney disease are present. Keep maintaining a healthy lifestyle!
+        {% elif prediction == 'Cyst' %}
+          🧪 This scan indicates a kidney cyst — a fluid-filled sac within the kidney. Most cysts are benign, but monitoring is advised.
+        {% elif prediction == 'Stone' %}
+          🪨 This image suggests the presence of a kidney stone. It can cause discomfort and may need treatment based on size and symptoms.
+        {% elif prediction == 'Tumor' %}
+          ⚠️ The scan shows signs of a kidney tumor. Further tests and medical evaluation are essential for diagnosis and treatment planning.
+        {% else %}
+          🤔 Unable to provide a detailed explanation for this category.
+        {% endif %}
+      </div>
+
+      <div class="d-flex justify-content-center gap-3 mt-4 flex-wrap">
+        <a href="/" class="btn btn-outline-primary">🔁 Try Another Image</a>
+        {% if record_id %}
+          <a href="{{ url_for('download_report', record_id=record_id) }}" class="btn btn-outline-danger">⬇️ Save Report as PDF</a>
+          <a href="{{ url_for('history') }}" class="btn btn-outline-info">📜 View History</a>
+        {% endif %}
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    window.addEventListener("load", function () {
+      document.getElementById("loader").style.display = "none";
+
+      const explanation = document.getElementById("diseaseText").innerText;
+      const utterance = new SpeechSynthesisUtterance(explanation);
+      utterance.rate = 1;
+      utterance.pitch = 1;
+      utterance.volume = 1;
+      utterance.lang = 'en-US';
+      speechSynthesis.speak(utterance);
+    });
+  </script>
+</body>
+</html>
