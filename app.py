@@ -2,31 +2,31 @@ from flask import Flask, render_template, request, redirect, url_for, session, s
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user, logout_user, login_required, UserMixin, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
-import os
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing import image
 import numpy as np
 from io import BytesIO
 from datetime import datetime
-from fpdf import FPDF
 import os
 import gdown
-import requests
-import tempfile
-from tensorflow.keras.models import load_model
+from fpdf import FPDF  # Using fpdf2 only
 
-# Google Drive ID from your file link
-FILE_ID = '1oyb1r2OXFXSbxX2YPhiZ534OMbogpcCI'  # Example: 1aBcD_EfGhIjKlMnOpQrStUvWxYz
-OUTPUT_PATH = 'model/kidney_model.h5'
+# Google Drive model setup
+MODEL_DIR = "model"
+MODEL_PATH = os.path.join(MODEL_DIR, "kidney_model.h5")
+DRIVE_FILE_ID = "1oyb1r2OXFXSbxX2YPhiZ534OMbogpcCI"
+DRIVE_URL = f"https://drive.google.com/uc?id={DRIVE_FILE_ID}"
 
-if not os.path.exists(OUTPUT_PATH):
-    url = f'https://drive.google.com/uc?id={FILE_ID}'
-    gdown.download(url, OUTPUT_PATH, quiet=False)
+if not os.path.exists(MODEL_PATH):
+    os.makedirs(MODEL_DIR, exist_ok=True)
+    gdown.download(DRIVE_URL, MODEL_PATH, quiet=False)
 
+# Load model
+model = load_model(MODEL_PATH)
+labels = ['Cyst', 'Normal', 'Stone', 'Tumor']
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
-
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -35,18 +35,6 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
-
-# Load trained model and labels
-url = "https://drive.google.com/uc?export=download&id=1oyb1r2OXFXSbxX2YPhiZ534OMbogpcCI"
-
-response = requests.get(url)
-with tempfile.NamedTemporaryFile(delete=False) as tmp:
-    tmp.write(response.content)
-    model_path = tmp.name
-
-model = load_model(model_path)
-
-labels = ['Cyst', 'Normal', 'Stone', 'Tumor']
 
 # User model
 class User(UserMixin, db.Model):
@@ -183,4 +171,3 @@ if __name__ == '__main__':
     with app.app_context():
         db.create_all()
     app.run(debug=True)
-
