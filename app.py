@@ -26,7 +26,7 @@ model = load_model(MODEL_PATH)
 labels = ['Cyst', 'Normal', 'Stone', 'Tumor']
 
 app = Flask(__name__)
-app.secret_key = os.environ.get('tharun_sec_123', 'fallback_key')
+app.secret_key = os.environ.get('SECRET_KEY', 'fallback_key')
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
