@@ -13,9 +13,9 @@ from fpdf import FPDF  # Using fpdf2 only
 
 # Google Drive model setup
 MODEL_DIR = "model"
-MODEL_PATH = os.path.join(MODEL_DIR, "kidney_model.h5")
+MODEL_PATH = os.environ.get("MODEL_PATH", "model.h5")
 DRIVE_FILE_ID = "1oyb1r2OXFXSbxX2YPhiZ534OMbogpcCI"
-DRIVE_URL = f"https://drive.google.com/uc?id={DRIVE_FILE_ID}"
+DRIVE_URL = os.environ.get("DRIVE_URL", "https://drive.google.com/uc?id=DRIVE_FILE_ID")
 
 if not os.path.exists(MODEL_PATH):
     os.makedirs(MODEL_DIR, exist_ok=True)
@@ -26,7 +26,7 @@ model = load_model(MODEL_PATH)
 labels = ['Cyst', 'Normal', 'Stone', 'Tumor']
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'
+app.secret_key = os.environ.get('tharun_sec_123', 'fallback_key')
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
