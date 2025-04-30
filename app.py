@@ -15,7 +15,7 @@ from fpdf import FPDF  # Using fpdf2 only
 MODEL_DIR = "model"
 MODEL_PATH = os.environ.get("MODEL_PATH", "model.h5")
 DRIVE_FILE_ID = "1oyb1r2OXFXSbxX2YPhiZ534OMbogpcCI"
-DRIVE_URL = os.environ.get("DRIVE_URL", "https://drive.google.com/uc?id=DRIVE_FILE_ID")
+DRIVE_URL = os.environ.get("DRIVE_URL", "https://drive.google.com/uc?id=1oyb1r2OXFXSbxX2YPhiZ534OMbogpcCI")
 
 if not os.path.exists(MODEL_PATH):
     os.makedirs(MODEL_DIR, exist_ok=True)
