@@ -67,6 +67,7 @@ This tool helps both patients and doctors by reducing consultancy costs, saving 
 🤝 Contributors
 
 👨‍💻 Developed by: [T K THARUN]
+
 🏆 Future Enhancements
 
 📱 Mobile app integration
